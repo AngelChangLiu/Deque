@@ -1,0 +1,128 @@
+import edu.princeton.cs.algs4.StdOut;
+import edu.princeton.cs.algs4.StdRandom;
+
+import java.util.Iterator;
+import java.util.NoSuchElementException;
+
+/*  This code implements a Queue where you can enqueue and dequeue items
+and randomizes the arrangement of the items that are in the array to output
+a random item.
+ */
+public class RandomizedQueue<Item> implements Iterable<Item> {
+    private Item[] array; // instance variable for an array to store the items
+    private int counter; // keeps track of the number of items in the array
+
+    // construct an empty randomized queue
+    public RandomizedQueue() {
+        array = (Item[]) new Object[1];
+        counter = 0;
+    }
+
+    // is the randomized queue empty?
+    public boolean isEmpty() {
+        if (counter == 0) {
+            return true;
+        }
+        return false;
+    }
+
+    // return the number of items on the randomized queue
+    public int size() {
+        return counter;
+    }
+
+    // add the item
+    public void enqueue(Item item) {
+        if (item == null) {
+            throw new IllegalArgumentException("Cannot be a null argument");
+        }
+        // creates a new array of size double the original array when the array
+        // reaches its capacity
+        if (array.length == counter) {
+            Item[] newArray = (Item[]) new Object[array.length * 2];
+            for (int i = 0; i < array.length; i++) {
+                newArray[i] = array[i];
+            }
+            array = newArray;
+        }
+        array[counter] = item;
+        counter++;
+    }
+
+    // remove and return a random item
+    public Item dequeue() {
+        if (isEmpty()) {
+            throw new java.util.NoSuchElementException("randomized queue is empty");
+        }
+        int random = StdRandom.uniformInt(counter);
+        Item save = array[random]; // saves item to return
+
+        array[random] = array[counter - 1];
+        array[counter - 1] = null;
+        counter--;
+
+        // creates a new array with half the size when the old array is 25% full
+        if (counter == array.length / 4 && counter > 0) {
+            Item[] newArray = (Item[]) new Object[array.length / 2];
+            for (int i = 0; i < counter; i++) {
+                newArray[i] = array[i];
+            }
+            array = newArray;
+        }
+        return save;
+    }
+
+    // return a random item (but do not remove it)
+    public Item sample() {
+        if (isEmpty()) {
+            throw new java.util.NoSuchElementException("randomized queue is empty");
+        }
+        return array[StdRandom.uniformInt(counter)];
+    }
+
+    // return an independent iterator over items in random order
+    public Iterator<Item> iterator() {
+        return new ArrayIterator();
+    }
+
+    private class ArrayIterator implements Iterator<Item> {
+        private int current; // The index of the Iterator
+        private Item[] arraycopy; // Creates a copy of the array
+
+        // Goes through an array
+        public ArrayIterator() {
+            current = 0;
+            arraycopy = (Item[]) new Object[counter];
+            for (int i = 0; i < counter; i++) {
+                arraycopy[i] = array[i];
+            }
+            StdRandom.shuffle(arraycopy);
+        }
+
+        public boolean hasNext() {
+            return current < counter;
+        }
+
+        public Item next() {
+            if (!hasNext()) {
+                throw new NoSuchElementException();
+            }
+            return arraycopy[current++];
+        }
+    }
+
+    // unit testing (required)
+    public static void main(String[] args) {
+        RandomizedQueue p1 = new RandomizedQueue();
+        StdOut.println(p1.isEmpty()); // true
+        p1.enqueue("Angel");
+        p1.enqueue("Chang Liu");
+        p1.dequeue();
+        StdOut.println(p1.size()); // 2
+        StdOut.println(p1.sample()); // 4
+        StdOut.println(p1.isEmpty()); // false
+        StdOut.println(p1.size()); // 2
+        StdOut.println(p1.sample());
+        p1.iterator();
+    }
+}
