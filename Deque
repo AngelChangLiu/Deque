@@ -1,0 +1,160 @@
+import edu.princeton.cs.algs4.StdOut;
+
+import java.util.Iterator;
+import java.util.NoSuchElementException;
+
+/* This code creates a deque that is able to add and remove items to the
+beginning and the end. This code also implements an Iterator that goes through
+all the items which are represented as Nodes
+ */
+public class Deque<Item> implements Iterable<Item> {
+    private Node first; // instance variable for the item at the beginning
+    private Node last; // instance variable for the item in the end
+    private int numberNodes; // counter for how many items we have
+
+    // construct an empty deque
+    public Deque() {
+        first = null;
+        last = null;
+        numberNodes = 0;
+    }
+
+    // class that allows item, next, and previous to look at other nodes
+    private class Node {
+        private Item item; // instance variable for the item
+        private Node next; // instance variable for the next Node
+        private Node previous; // instance variable for the previous Node
+    }
+
+
+    // is the deque empty?
+    public boolean isEmpty() {
+        if (numberNodes == 0) {
+            return true;
+        }
+        return false;
+    }
+
+    // return the number of items on the deque
+    public int size() {
+        return numberNodes;
+    }
+
+    // add the item to the front
+    public void addFirst(Item item) {
+        if (item == null) {
+            throw new IllegalArgumentException("Cannot be a null argument");
+        }
+        Node newFirst = new Node();
+        if (isEmpty()) {
+            last = newFirst; // the single node would be both the first and last
+        }
+        else {
+            first.previous = newFirst;
+        }
+
+        numberNodes++;
+        newFirst.item = item;
+
+
+        // connecting nodes
+        newFirst.next = first;
+        first = newFirst;
+    }
+
+    // add the item to the back
+    public void addLast(Item item) {
+        if (item == null) {
+            throw new IllegalArgumentException("Cannot be a null argument");
+        }
+        Node newLast = new Node();
+        if (isEmpty()) {
+            first = newLast; // the single node would be both the first and last
+        }
+        else {
+            last.next = newLast;
+        }
+
+        numberNodes++;
+        newLast.item = item;
+
+
+        // connecting nodes
+        newLast.previous = last;
+        last = newLast;
+    }
+
+    // remove and return the item from the front
+    public Item removeFirst() {
+        if (isEmpty()) {
+            throw new java.util.NoSuchElementException("Deque is empty");
+        }
+        Item save = first.item; // saves item to return
+        if (numberNodes == 1) {
+            first = null;
+            last = null;
+        }
+        else {
+            first = first.next;
+            first.previous = null;
+        }
+        numberNodes--;
+        return save;
+    }
+
+    // remove and return the item from the back
+    public Item removeLast() {
+        if (isEmpty()) {
+            throw new java.util.NoSuchElementException("Deque is empty");
+        }
+
+        Item save = last.item; // saves item in order to return
+        if (numberNodes == 1) {
+            first = null;
+            last = null;
+        }
+        else {
+            last = last.previous;
+            last.next = null;
+        }
+        numberNodes--;
+        return save;
+    }
+
+    // return an iterator over items in order from front to back
+    public Iterator<Item> iterator() {
+        return new NodeIterator();
+    }
+
+    private class NodeIterator implements Iterator<Item> {
+        private Node current = first; // index for the iterator
+
+        public boolean hasNext() {
+            return current != null;
+        }
+
+        public Item next() {
+            if (!hasNext()) {
+                throw new NoSuchElementException();
+            }
+            Item item = current.item;
+            current = current.next;
+            return item;
+        }
+    }
+
+    // unit testing (required)
+    public static void main(String[] args) {
+        Deque p1 = new Deque();
+        StdOut.println(p1.isEmpty()); // true
+        p1.addFirst("Angel");
+        p1.addLast(" Chang Liu");
+        p1.addLast(" is");
+        p1.addLast(" cool");
+        StdOut.println(p1.size()); // 4
+        StdOut.println(p1.removeFirst());
+        StdOut.println(p1.removeLast());
+        StdOut.println(p1.size()); // 2
+        p1.iterator();
+    }
+}
